@@ -1,13 +1,13 @@
 // 20mhz / (1s / 100us) = 2000
 const LARGE_INTERVAL_PERIOD: usize = 2000;
 
-// 20mhz / (1s / 16.6us) = 332
-//  Note that the docs claim this interval is 20us rather than 16.6us, but it could
+// 20mhz / (1s / 16.7us) = 334
+//  Note that the docs claim this interval is 16.7us rather than 20us, but it could
 //  be just rounding, as is often the case. This particular value comes from
 //  extensive testing/tweaking comparing recordings of the the vocal sample in the
 //  intro of Galactic Pinball from both the real hw and the emu with slightly different
 //  intervals in the range of ~16-20ms.
-const SMALL_INTERVAL_PERIOD: usize = 332;
+const SMALL_INTERVAL_PERIOD: usize = 334;
 
 enum Interval {
     Large,
@@ -86,16 +86,16 @@ impl Timer {
     }
 
     pub fn cycles(&mut self, cycles: usize) -> bool {
-        if self.enable {
-            for _ in 0..cycles {
-                let tick_period = match self.interval {
-                    Interval::Large => LARGE_INTERVAL_PERIOD,
-                    Interval::Small => SMALL_INTERVAL_PERIOD,
-                };
-                self.tick_counter += 1;
-                if self.tick_counter >= tick_period {
-                    self.tick_counter = 0;
+        for _ in 0..cycles {
+            let tick_period = match self.interval {
+                Interval::Large => LARGE_INTERVAL_PERIOD,
+                Interval::Small => SMALL_INTERVAL_PERIOD,
+            };
+            self.tick_counter += 1;
+            if self.tick_counter >= tick_period {
+                self.tick_counter = 0;
 
+                if self.enable {
                     self.counter = match self.counter {
                         0 => {
                             self.zero_status = true;
