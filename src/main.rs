@@ -36,7 +36,9 @@ mod emulator;
 use rom::*;
 use sram::*;
 use vsu::*;
-use cpal_driver::*;
+use system_time_source::*;
+//use cpal_driver::*;
+use wave_file_buffer_sink::*;
 use emulator::*;
 
 use std::env;
@@ -76,10 +78,13 @@ fn main() {
         }
     };
 
-    let audio_driver = CpalDriver::new(SAMPLE_RATE as _, 100).unwrap();
+    //let audio_driver = CpalDriver::new(SAMPLE_RATE as _, 100).unwrap();
 
-    let audio_buffer_sink = audio_driver.sink();
-    let time_source = audio_driver.time_source();
+    //let audio_buffer_sink = audio_driver.sink();
+    //let time_source = audio_driver.time_source();
+
+    let audio_buffer_sink = Box::new(WaveFileBufferSink::new("out.wav", SAMPLE_RATE as _).unwrap());
+    let time_source = Box::new(SystemTimeSource::new());
 
     let mut emulator = Emulator::new(rom, sram, audio_buffer_sink, time_source);
     emulator.run();
