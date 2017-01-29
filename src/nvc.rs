@@ -619,7 +619,7 @@ impl Nvc {
                         OPCODE_BITS_SUB_OP_CMPF_S => {
                             let lhs = self.reg_gpr_float(reg2);
                             let rhs = self.reg_gpr_float(reg1);
-                            let value = lhs - rhs;
+                            let value = self.fix_fp_sign(lhs - rhs);
 
                             self.set_fp_flags(value);
 
@@ -645,7 +645,7 @@ impl Nvc {
                         OPCODE_BITS_SUB_OP_ADDF_S => {
                             let lhs = self.reg_gpr_float(reg2);
                             let rhs = self.reg_gpr_float(reg1);
-                            let value = lhs + rhs;
+                            let value = self.fix_fp_sign(lhs + rhs);
                             self.set_reg_gpr_float(reg2, value);
 
                             self.set_fp_flags(value);
@@ -655,7 +655,7 @@ impl Nvc {
                         OPCODE_BITS_SUB_OP_SUBF_S => {
                             let lhs = self.reg_gpr_float(reg2);
                             let rhs = self.reg_gpr_float(reg1);
-                            let value = lhs - rhs;
+                            let value = self.fix_fp_sign(lhs - rhs);
                             self.set_reg_gpr_float(reg2, value);
 
                             self.set_fp_flags(value);
@@ -789,6 +789,14 @@ impl Nvc {
     fn set_zero_sign_flags(&mut self, value: u32) {
         self.psw_zero = value == 0;
         self.psw_sign = (value & 0x80000000) != 0;
+    }
+
+    fn fix_fp_sign(&mut self, value: f32) -> f32 {
+        if value.abs() == 0.0 {
+            return 0.0;
+        }
+
+        return value;
     }
 
     fn set_fp_flags(&mut self, value: f32) {
